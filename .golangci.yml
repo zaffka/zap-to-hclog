@@ -1,0 +1,52 @@
+run:
+  timeout: 5m
+
+linters:
+  fast: false
+  disable-all: true
+  enable:
+    - asciicheck
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - errcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - goerr113
+    - gofmt
+    - goheader
+    - goimports
+    - golint
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nlreturn
+    - nolintlint
+    - prealloc
+    - predeclared
+    - rowserrcheck
+    - exportloopref
+    - sqlclosecheck
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - tparallel
+    - typecheck
+    - unconvert
+    - unused
+    - varcheck
+    - whitespace
