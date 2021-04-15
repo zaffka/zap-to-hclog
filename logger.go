@@ -2,7 +2,6 @@ package log
 
 import (
 	"io"
-	"io/ioutil"
 	"log"
 
 	"github.com/hashicorp/go-hclog"
@@ -54,6 +53,11 @@ func (l Logger) StandardWriter(opts *hclog.StandardLoggerOptions) io.Writer {
 	return hclog.DefaultOutput
 }
 
+// StandardLogger returns standard logger with os.Stderr as a writer.
+func (l Logger) StandardLogger(opts *hclog.StandardLoggerOptions) *log.Logger {
+	return log.New(l.StandardWriter(opts), "", log.LstdFlags)
+}
+
 // IsTrace has no implementation.
 func (l Logger) IsTrace() bool { return false }
 
@@ -74,9 +78,4 @@ func (l Logger) ImpliedArgs() []interface{} { return nil }
 
 // SetLevel has no implementation.
 func (l Logger) SetLevel(lvl Level) {
-}
-
-// StandardLogger has no implementation.
-func (l Logger) StandardLogger(opts *hclog.StandardLoggerOptions) *log.Logger {
-	return log.New(ioutil.Discard, "", 0)
 }
