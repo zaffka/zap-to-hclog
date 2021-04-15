@@ -5,7 +5,13 @@ import (
 	"log"
 
 	"github.com/hashicorp/go-hclog"
+	"go.uber.org/zap"
 )
+
+// Adapt simplifies wrapping zap instance to Logger interface.
+func Adapt(zap *zap.Logger) Logger {
+	return Logger{Zap: zap}
+}
 
 type Level = hclog.Level
 type Logger = SimplifiedLogger
