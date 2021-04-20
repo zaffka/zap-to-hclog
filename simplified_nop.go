@@ -1,4 +1,4 @@
-package log
+package adapter
 
 type SimplifiedNop struct{}
 

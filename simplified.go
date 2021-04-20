@@ -1,4 +1,4 @@
-package log
+package adapter
 
 import "go.uber.org/zap"
 
