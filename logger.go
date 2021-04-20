@@ -1,4 +1,4 @@
-package adapter
+package wrapper
 
 import (
 	"io"
@@ -8,80 +8,98 @@ import (
 	"go.uber.org/zap"
 )
 
-// Adapt simplifies wrapping zap instance to Logger interface.
-func Adapt(zap *zap.Logger) Logger {
-	return Logger{Zap: zap}
+// Wrap simplifies wrapping zap instance to hclog.Logger interfacs.
+func Wrap(zap *zap.Logger) hclog.Logger {
+	return Wrapper{Zap: zap}
 }
 
 type Level = hclog.Level
-type Logger = SimplifiedLogger
+
+// Wrapper holds *zap.Logger and adapts its methods to declared by hclog.Logger.
+type Wrapper struct {
+	Zap  *zap.Logger
+	name string
+}
+
+func (w Wrapper) Debug(msg string, args ...interface{}) {
+	w.Zap.Debug(msg, convertToZapAny(args...)...)
+}
+func (w Wrapper) Info(msg string, args ...interface{}) {
+	w.Zap.Info(msg, convertToZapAny(args...)...)
+}
+func (w Wrapper) Warn(msg string, args ...interface{}) {
+	w.Zap.Warn(msg, convertToZapAny(args...)...)
+}
+func (w Wrapper) Error(msg string, args ...interface{}) {
+	w.Zap.Error(msg, convertToZapAny(args...)...)
+}
 
 // Log logs messages with four simplified levels - Debug,Warn,Error and Info as a default.
-func (l Logger) Log(lvl Level, msg string, args ...interface{}) {
+func (w Wrapper) Log(lvl Level, msg string, args ...interface{}) {
 	switch lvl {
 	case hclog.Debug:
-		l.Debug(msg, args...)
+		w.Debug(msg, args...)
 	case hclog.Warn:
-		l.Warn(msg, args...)
+		w.Warn(msg, args...)
 	case hclog.Error:
-		l.Error(msg, args...)
+		w.Error(msg, args...)
 	case hclog.DefaultLevel, hclog.Info, hclog.NoLevel, hclog.Off, hclog.Trace:
-		l.Info(msg, args...)
+		w.Info(msg, args...)
 	}
 }
 
 // Trace will log an info-level message in Zap.
-func (l Logger) Trace(msg string, args ...interface{}) {
-	l.Zap.Info(msg, convertToZapAny(args...)...)
+func (w Wrapper) Trace(msg string, args ...interface{}) {
+	w.Zap.Info(msg, convertToZapAny(args...)...)
 }
 
 // With returns a logger with always-presented key-value pairs.
-func (l Logger) With(args ...interface{}) hclog.Logger {
-	return &Logger{Zap: l.Zap.With(convertToZapAny(args...)...)}
+func (w Wrapper) With(args ...interface{}) hclog.Logger {
+	return &Wrapper{Zap: w.Zap.With(convertToZapAny(args...)...)}
 }
 
-// Named returns a logger with the specific name.
+// Named returns a logger with the specific nams.
 // The name string will always be presented in a log messages.
-func (l Logger) Named(name string) hclog.Logger {
-	return &Logger{Zap: l.Zap.Named(name), name: name}
+func (w Wrapper) Named(name string) hclog.Logger {
+	return &Wrapper{Zap: w.Zap.Named(name), name: name}
 }
 
 // Name returns a logger's name (if presented).
-func (l Logger) Name() string { return l.name }
+func (w Wrapper) Name() string { return w.name }
 
 // ResetNamed has the same implementation as Named.
-func (l Logger) ResetNamed(name string) hclog.Logger {
-	return &Logger{Zap: l.Zap.Named(name), name: name}
+func (w Wrapper) ResetNamed(name string) hclog.Logger {
+	return &Wrapper{Zap: w.Zap.Named(name), name: name}
 }
 
 // StandardWriter returns os.Stderr as io.Writer.
-func (l Logger) StandardWriter(opts *hclog.StandardLoggerOptions) io.Writer {
+func (w Wrapper) StandardWriter(opts *hclog.StandardLoggerOptions) io.Writer {
 	return hclog.DefaultOutput
 }
 
 // StandardLogger returns standard logger with os.Stderr as a writer.
-func (l Logger) StandardLogger(opts *hclog.StandardLoggerOptions) *log.Logger {
-	return log.New(l.StandardWriter(opts), "", log.LstdFlags)
+func (w Wrapper) StandardLogger(opts *hclog.StandardLoggerOptions) *log.Logger {
+	return log.New(w.StandardWriter(opts), "", log.LstdFlags)
 }
 
 // IsTrace has no implementation.
-func (l Logger) IsTrace() bool { return false }
+func (w Wrapper) IsTrace() bool { return false }
 
 // IsDebug has no implementation.
-func (l Logger) IsDebug() bool { return false }
+func (w Wrapper) IsDebug() bool { return false }
 
 // IsInfo has no implementation.
-func (l Logger) IsInfo() bool { return false }
+func (w Wrapper) IsInfo() bool { return false }
 
 // IsWarn has no implementation.
-func (l Logger) IsWarn() bool { return false }
+func (w Wrapper) IsWarn() bool { return false }
 
 // IsError has no implementation.
-func (l Logger) IsError() bool { return false }
+func (w Wrapper) IsError() bool { return false }
 
 // ImpliedArgs has no implementation.
-func (l Logger) ImpliedArgs() []interface{} { return nil }
+func (w Wrapper) ImpliedArgs() []interface{} { return nil }
 
 // SetLevel has no implementation.
-func (l Logger) SetLevel(lvl Level) {
+func (w Wrapper) SetLevel(lvl Level) {
 }
