@@ -9,8 +9,8 @@ import (
 )
 
 // Wrap simplifies wrapping zap instance to hclog.Logger interfacs.
-func Wrap(zap *zap.Logger) hclog.Logger {
-	return Wrapper{Zap: zap}
+func Wrap(z *zap.Logger) hclog.Logger {
+	return Wrapper{Zap: z.WithOptions(zap.AddCallerSkip(2))}
 }
 
 type Level = hclog.Level
